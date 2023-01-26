@@ -17,14 +17,12 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * This entity uses a sequential UUID as surrogate primary key.
- *
+ * {@link WebUser} uses a sequential UUID as surrogate primary key.
+ * <p>
  * An universal identifier is useful in a context of multiple systems so that they can
- * refer to entities in an unique way.
- * Being a sequential UUID its value will be encrypted before
- * being sent to public API to protect against sequence guessing attack.
- * <br>
- * <b>ALERT:</b> don't use 'user' as entity name because it is a reserved SQL word!
+ * create unique identifier for entities independently.
+ * <p>
+ * <b>ALERT:</b> don't use 'User' as the entity name because it is a reserved SQL word!
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
@@ -36,23 +34,29 @@ public class WebUser implements Serializable {
             Generators.timeBasedGenerator(EthernetAddress.fromInterface());
 
     /**
+     * Using an UUID as primary key means that this entity can be uniquely addressed by whatever
+     * system, on the other side, being UUID 128 bits long (double the size of a default long) the
+     * db will be slightly bigger and slightly slower (how much will depend on the actual db).
+     * <p>
      * Note that:
      * <ul>
      * <li>the actual SQL type depends on the database (i.e. PostgreSQL has a primitive UUID type)
      * <li>the UUID created should be a database friendly version 1, 5, 6, 7 <b>sequential UUID</b>
-     * (avoid random version 4 or any non sequential type because they works very badly with DB
-     * indexes).
+     * (avoid random version 4 or any non sequential type because they cannot be indexed efficiently
+     * by B-Trees that are the main way of indexing data in the database world).
      * </ul>
      *
      * <p>
+     * <h4>Note about Hibernate UUID auto-generation</h4>
      * Hibernate will use the {@link org.hibernate.id.uuid.CustomVersionOneStrategy} class to
      * generate a UUID based on IETF RFC 4122 version 1 from the main IP address of the host.
-     * <br>
-     * Using Hibernate generator is not advisable because the UUID will be generated and available
-     * only after being persisted voiding the advantages of having it always ready for
-     * {@link Object#equals(Object)} comparisons. By initiating it directly in the constructor
-     * we can immediately and safely put the entity in a set without problems.
-     *
+     * <p>
+     * Using Hibernate generator is <b>not advisable</b> because the UUID will be generated and
+     * thus available only after the entity has being persisted voiding the advantages of having it always ready for
+     * {@link Object#equals(Object)} comparisons. By initiating it directly in the constructor we
+     * can immediately and safely put the entity in a set without problems.
+     * <p>
+     * This is the annotations for the hibernate creator:
      *<pre>{@code
         @GeneratedValue(generator = "UUID")
         @GenericGenerator(
@@ -97,10 +101,6 @@ public class WebUser implements Serializable {
 
     public UUID getId() {
         return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public String getLogin() {

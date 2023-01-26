@@ -32,8 +32,9 @@ public class Customer implements Serializable {
 
     /**
      * This UUID refers to the <b>Sequential UUID</b> that identifies a {@link WebUser}.
-     * Because it is sequential can be easily guessed by an attacker and should be encrypted
-     * before being sent outside the internal environment.
+     * Because it is sequential it can be easily guessed by an attacker and should be encrypted
+     * before being sent outside the internal environment to avoid having other users being
+     * exposed.
      */
     private UUID userId;
 

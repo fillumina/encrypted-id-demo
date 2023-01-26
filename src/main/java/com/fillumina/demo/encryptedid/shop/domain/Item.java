@@ -23,7 +23,7 @@ public class Item implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Using a default long ID.
+     * Item doesn't need to be addressed individually so it's using a default long ID.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

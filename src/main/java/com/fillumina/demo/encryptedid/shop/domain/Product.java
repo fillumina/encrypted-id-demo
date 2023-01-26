@@ -15,28 +15,34 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Products need to be searched by SKU so there must be a (secondary) index on that. These are the
- * disadvantages of using a string as a primary key (see
+ * Products need to be searched by SKU so there must be a (secondary) index for that.
+ * <p>
+ * We might have used the SKU as a natural primary key but there are some disadvantages from using a
+ * string for that (see
  * <a href='https://stackoverflow.com/questions/15477005/what-are-the-pros-and-cons-for-choosing-a-character-varying-data-type-for-primar'>
- * What are the pros and cons for choosing a character varying data type for primary key in SQL?</a>):
+ * What are the pros and cons for choosing a character varying data type for primary key in
+ * SQL?</a>):
  * <ul>
  * <li>It takes much more space than usual big-integer (long)
- * <li>Comparing strings is much slower than to comparing numbers
+ * <li>Comparing strings is much slower than to comparing numbers (because of character encoding)
  * <li>Using a big primary key causes a space amplification problem because it is repeated on all
- * other entities that refers to this one with foreign keys
- * <li>string takes more space on temporary structures such as views, indexes, caches etc
- * <li>Numeric indexes will be entered in order and minimal re-indexing will need to be done (i.e.
- * if you have a table with keys Apple, Carrot and want to insert Banana, the table will have to
- * move around the indexes so that Banana is inserted in the middle. You will rarely insert data in
- * the middle of an index if the index is numeric and sequential).
+ * other entities that refers to this one with foreign keys (on the other end it makes the key
+ * ready available on them without having to load the foreign entity)
+ * <li>String takes more space on temporary structures such as views, indexes, caches etc
+ * <li>Numeric <i>sequential</i> indexes will be entered in order and minimal re-indexing will need
+ * to be done (i.e. if you have a table with keys Apple, Carrot and want to insert Banana, the table
+ * will have to move around the indexes so that Banana is inserted in the middle. You will rarely
+ * insert data in the middle of an index if the index is numeric and sequential).
  * <li>Numeric indexes unlinked from data are not going to change.
  * <b>Do NOT use natural primary key</b>, for example passport number, social security number, or
  * employee contract number as these <b>can change in real world</b> situations.
  * </ul>
  *
- * For these reasons a possible work around could be to have a normal long primary key to use
- * internally (i.e. for FK) and a supplementary secondary index on SKU to be used when
- * accessed by the API (the only scenario that really needs it).
+ * On the other end <b>natural keys</b> are perfect to search for a particular entity by the user
+ * point of view (not the internals relationships of the database that are better managed with
+ * sequential numbers) so a possible work around could be to have a normal long primary key and a
+ * supplementary secondary index on SKU to be used when accessed by the API (the only scenario that
+ * really needs it).
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
@@ -75,16 +81,8 @@ public class Product implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getSku() {
         return sku;
-    }
-
-    public void setSku(String sku) {
-        this.sku = sku;
     }
 
     public BigDecimal getPrice() {

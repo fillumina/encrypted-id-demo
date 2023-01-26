@@ -17,6 +17,10 @@ import java.util.Objects;
 public class Invoice implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Invoices will not be accessed individually from outside so they don't need a public
+     * identifier and a much more efficient default Long can be used instead.
+     */
     @Id
     // always prefer sequence because it allows batch operations that are much faster
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

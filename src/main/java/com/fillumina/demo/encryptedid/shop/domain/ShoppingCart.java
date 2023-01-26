@@ -2,6 +2,7 @@ package com.fillumina.demo.encryptedid.shop.domain;
 
 import com.github.f4b6a3.tsid.TsidFactory;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
@@ -14,7 +15,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * A <a href='https://github.com/f4b6a3/tsid-creator'>TSID</a> is used as primary key. It shares all
+ * <a href='https://github.com/f4b6a3/tsid-creator'>TSID</a> is used as primary key. It shares all
  * the advantages of a <b>sequential UUID</b> (being itself a sequential universal identifier) and a
  * long id (being encoded in a long). It mimics the
  * <a href='https://en.wikipedia.org/wiki/Snowflake_ID'>SnowflakeId</a> created and used extensively
@@ -28,8 +29,15 @@ public class ShoppingCart implements Serializable {
 
     private final static TsidFactory TSID_FACTORY = TsidFactory.newInstance1024(0);
 
+    /**
+     * creating a TSID or whatever UUID in general is a time expensive operation and should be
+     * avoided when not needed. Here we create the id in the public constructor so that when
+     * hibernate creates the entity to be filled up with data from the db the creation can be
+     * avoided.
+     */
     @Id
-    private Long id = TSID_FACTORY.create().toLong();
+    @Column(name = "id", updatable = false, nullable = false)
+    private Long id;
 
     /**
      * This foreign key (FK) will use the WebUser UUID primary key (PK) which is 128 bits long so
@@ -53,6 +61,12 @@ public class ShoppingCart implements Serializable {
     }
 
     public ShoppingCart(final WebUser webUser) {
+        // id must be initialized here to spare the initialization in case of an entity
+        // created by hibernate to be filled by persisted data. UUID creation is usually
+        // time consuming.
+        // make this initialization the first thing in the constructor so hashCode() and
+        // equals() will be available for the following operations.
+        this.id = TSID_FACTORY.create().toLong();
         this.webUser = Objects.requireNonNull(webUser, "webUser");
         // add to the collection of the new assigned user
         webUser.getShoppingCarts().add(this);
@@ -60,10 +74,6 @@ public class ShoppingCart implements Serializable {
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public BigDecimal getTotalCost() {
@@ -79,10 +89,6 @@ public class ShoppingCart implements Serializable {
 
     public List<Item> getItems() {
         return items;
-    }
-
-    public void setItems(List<Item> items) {
-        this.items = items;
     }
 
     @Override
