@@ -4,7 +4,9 @@ import com.fillumina.demo.encryptedid.shop.domain.Product;
 import com.fillumina.demo.encryptedid.shop.domain.WebUser;
 import com.fillumina.demo.encryptedid.shop.dto.ProductDTO;
 import com.fillumina.demo.encryptedid.shop.dto.ShoppingCartDTO;
+import com.fillumina.demo.encryptedid.shop.dto.WebUserDTO;
 import com.fillumina.demo.encryptedid.shop.service.ShopService;
+import java.util.UUID;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,13 +27,15 @@ public class ShopResource {
     }
 
     @PostMapping("/shop/user/{login}")
-    public String createWebUser(@PathVariable String login) {
+    public UUID createWebUser(@PathVariable String login) {
         return shopService.createWebUser(login);
     }
 
     @GetMapping("/shop/user/{id}")
-    public WebUser getWebUser(@PathVariable String id) {
-        return shopService.getWebUser(id);
+    public WebUserDTO getWebUser(@PathVariable String id) {
+        UUID uuid = UUID.fromString(id);
+        WebUser webUser = shopService.getWebUser(uuid);
+        return new WebUserDTO(webUser);
     }
 
     @PostMapping("/shop/product")
@@ -40,8 +44,9 @@ public class ShopResource {
     }
 
     @GetMapping("/shop/product/{sku}")
-    public Product getProduct(@PathVariable String sku) {
-        return shopService.getProduct(sku);
+    public ProductDTO getProduct(@PathVariable String sku) {
+        Product product = shopService.getProduct(sku);
+        return new ProductDTO(product);
     }
 
     @PostMapping("/shop/buy")

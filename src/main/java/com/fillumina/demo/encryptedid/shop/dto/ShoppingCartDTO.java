@@ -1,6 +1,8 @@
 package com.fillumina.demo.encryptedid.shop.dto;
 
+import com.fillumina.demo.encryptedid.shop.domain.ShoppingCart;
 import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -8,10 +10,22 @@ import java.util.List;
  */
 public class ShoppingCartDTO {
 
-    private String userId;
+    private UUID userId;
     private List<ItemDTO> items;
 
-    public ShoppingCartDTO userId(final String value) {
+    public ShoppingCartDTO() {
+    }
+
+    public ShoppingCartDTO(ShoppingCart shoppingCart) {
+        this.userId = shoppingCart.getWebUser().getId();
+        if (shoppingCart.getItems() != null) {
+            this.items = shoppingCart.getItems().stream()
+                    .map(i -> new ItemDTO(i))
+                    .toList();
+        }
+    }
+
+    public ShoppingCartDTO userId(final UUID value) {
         this.userId = value;
         return this;
     }
@@ -21,11 +35,11 @@ public class ShoppingCartDTO {
         return this;
     }
 
-    public String getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 

@@ -91,10 +91,12 @@ public class ShopResourceTest {
         Product product = new Product(SKU, PRICE);
         productRepository.save(product);
 
+        ProductDTO result = new ProductDTO(product);
+
         mockMvc.perform(get("/shop/product/" + SKU))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(OM.writeValueAsString(product)));
+                .andExpect(content().json(OM.writeValueAsString(result)));
     }
 
     @Test
@@ -119,7 +121,7 @@ public class ShopResourceTest {
         ItemDTO item2 = new ItemDTO(sku2, qty2);
 
         ShoppingCartDTO shoppingCartDTO = new ShoppingCartDTO()
-                .userId(user.getId().toString())
+                .userId(user.getId())
                 .items(List.of(item1, item2));
 
         when(accountingClient.registerNewInvoice(any()))

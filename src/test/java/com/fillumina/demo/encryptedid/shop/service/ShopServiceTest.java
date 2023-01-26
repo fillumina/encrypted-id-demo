@@ -51,9 +51,7 @@ public class ShopServiceTest {
 
     @Test
     public void testSaveWebUser() {
-        String identifier = shopService.createWebUser(LOGIN);
-        UUID id = UUID.fromString(identifier);
-
+        UUID id = shopService.createWebUser(LOGIN);
         WebUser user = webUserRepository.findById(id).orElseThrow();
 
         assertThat(user.getLogin()).isEqualTo(LOGIN);
@@ -61,8 +59,8 @@ public class ShopServiceTest {
 
     @Test
     public void testGetWebUser() {
-        String identifier = shopService.createWebUser(LOGIN);
-        WebUser user = shopService.getWebUser(identifier);
+        UUID uuid = shopService.createWebUser(LOGIN);
+        WebUser user = shopService.getWebUser(uuid);
 
         assertThat(user.getLogin()).isEqualTo(LOGIN);
     }
@@ -109,7 +107,7 @@ public class ShopServiceTest {
         ItemDTO item2 = new ItemDTO(sku2, qty2);
 
         ShoppingCartDTO shoppingCartDTO = new ShoppingCartDTO()
-                .userId(user.getId().toString())
+                .userId(user.getId())
                 .items(List.of(item1, item2));
 
         // call the accounting system and send the shopping cart

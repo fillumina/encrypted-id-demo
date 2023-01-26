@@ -1,5 +1,7 @@
 package com.fillumina.demo.encryptedid.shop.dto;
 
+import com.fillumina.demo.encryptedid.shop.domain.Item;
+
 /**
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
@@ -10,6 +12,10 @@ public class ItemDTO {
     private int quantity;
 
     public ItemDTO() {
+    }
+
+    public ItemDTO(Item item) {
+        this(item.getProduct().getSku(), item.getQuantity());
     }
 
     public ItemDTO(String sku, int quantity) {

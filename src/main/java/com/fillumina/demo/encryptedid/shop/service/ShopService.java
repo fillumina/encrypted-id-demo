@@ -35,16 +35,15 @@ public class ShopService {
         this.accountingClient = accountingClient;
     }
 
-    public String createWebUser(String login) {
+    public UUID createWebUser(String login) {
         WebUser webUser = new WebUser(login);
         webUserRepository.save(webUser);
         final UUID id = webUser.getId();
-        return id.toString();
+        return id;
     }
 
-    public WebUser getWebUser(String id) {
-        UUID uuid = UUID.fromString(id);
-        WebUser user = webUserRepository.findById(uuid).orElseThrow();
+    public WebUser getWebUser(UUID id) {
+        WebUser user = webUserRepository.findById(id).orElseThrow();
         return user;
     }
 
