@@ -1,5 +1,6 @@
 package com.fillumina.demo.encryptedid.accounting.dto;
 
+import com.fillumina.keyencryptor.jackson.Encryptable;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -9,8 +10,12 @@ import java.util.UUID;
  */
 public class InvoiceDTO {
 
+    @Encryptable
     private UUID customerId;
+
+    @Encryptable
     private Long shoppingCartId;
+
     BigDecimal total;
 
     public InvoiceDTO() {

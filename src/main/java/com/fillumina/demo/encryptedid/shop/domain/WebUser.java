@@ -3,6 +3,7 @@ package com.fillumina.demo.encryptedid.shop.domain;
 import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
+import com.fillumina.keyencryptor.jackson.Encryptable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -76,6 +77,7 @@ public class WebUser implements Serializable {
      */
     @Id
     @Column(name = "id", updatable = false, nullable = false)
+    @Encryptable
     private UUID id;
 
     private String login;

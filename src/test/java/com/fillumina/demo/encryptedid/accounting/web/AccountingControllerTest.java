@@ -6,6 +6,7 @@ import com.fillumina.demo.encryptedid.accounting.domain.Invoice;
 import com.fillumina.demo.encryptedid.accounting.dto.InvoiceDTO;
 import com.fillumina.demo.encryptedid.accounting.repository.CustomerRepository;
 import com.fillumina.demo.encryptedid.accounting.repository.InvoiceRepository;
+import com.fillumina.keyencryptor.EncryptorsHolder;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
@@ -63,7 +64,7 @@ public class AccountingControllerTest {
 
     @Test
     public void testGetExpenses() throws Exception {
-        final UUID customerId = UUID.randomUUID();
+        final UUID customerId = new UUID(0L, 1L);
         final BigDecimal price1 = new BigDecimal("3.45");
         final BigDecimal price2 = new BigDecimal("4.99");
 
@@ -78,8 +79,10 @@ public class AccountingControllerTest {
 
         List<BigDecimal> result = List.of(price1, price2);
 
+        String encryptedCustomerId = EncryptorsHolder.encryptUuid(customerId);
+
         mockMvc
-            .perform(get("/invoices/" + customerId))
+            .perform(get("/invoices/" + encryptedCustomerId))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().json(OM.writeValueAsString(result)));

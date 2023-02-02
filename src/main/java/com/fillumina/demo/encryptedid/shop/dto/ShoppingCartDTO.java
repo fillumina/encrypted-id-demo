@@ -16,8 +16,8 @@ public class ShoppingCartDTO {
     public ShoppingCartDTO() {
     }
 
-    public ShoppingCartDTO(ShoppingCart shoppingCart) {
-        this.userId = shoppingCart.getWebUser().getId();
+    public ShoppingCartDTO(ShoppingCart shoppingCart, UUID userId) {
+        this.userId = userId;
         if (shoppingCart.getItems() != null) {
             this.items = shoppingCart.getItems().stream()
                     .map(i -> new ItemDTO(i))

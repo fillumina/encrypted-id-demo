@@ -26,9 +26,14 @@ public class AccountingService {
         this.invoiceRepository = invoiceRepository;
     }
 
+    /**
+     * It's called by the shop API and not directly by the User so the WebUser id is
+     * not encrypted
+     */
     public long registerNewInvoice(InvoiceDTO invoiceDTO) {
+        final UUID customerId = invoiceDTO.getCustomerId();
         Customer customer = customerRepository.findByUserId(invoiceDTO.getCustomerId())
-                .orElse(customerRepository.save(new Customer(invoiceDTO.getCustomerId())));
+                .orElse(customerRepository.save(new Customer(customerId)));
 
         Invoice invoice = new Invoice(
                 invoiceDTO.getShoppingCartId(), customer, invoiceDTO.getTotal());
@@ -38,6 +43,9 @@ public class AccountingService {
         return invoice.getId();
     }
 
+    /**
+     * This might be called by Users and so the UUID is encrypted
+     */
     public List<BigDecimal> getExpensesOfCustomer(UUID userId) {
         Customer customer = customerRepository.findByUserId(userId).orElseThrow();
 

@@ -10,6 +10,7 @@ import com.fillumina.demo.encryptedid.shop.dto.ShoppingCartDTO;
 import com.fillumina.demo.encryptedid.shop.repository.ProductRepository;
 import com.fillumina.demo.encryptedid.shop.repository.ShoppingCartRepository;
 import com.fillumina.demo.encryptedid.shop.repository.WebUserRepository;
+import com.fillumina.keyencryptor.EncryptorsHolder;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
@@ -69,7 +70,9 @@ public class ShopResourceTest {
         webUserRepository.save(user);
         UUID id = user.getId();
 
-        mockMvc.perform(get("/shop/user/" + id))
+        String encryptedUserId = EncryptorsHolder.encryptUuid(id);
+
+        mockMvc.perform(get("/shop/user/" + encryptedUserId))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(OM.writeValueAsString(user)));

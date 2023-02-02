@@ -1,9 +1,9 @@
 package com.fillumina.demo.encryptedid.service;
 
+import com.fillumina.keyencryptor.EncryptorsHolder;
 import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
@@ -13,22 +13,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class EncryptionServiceTest {
 
-    @Autowired
-    private EncryptionService encryptionService;
-
     @Test
-    public void shouldEncryptionServiceBeNotNull() {
-        assertThat(encryptionService).isNotNull();
+    public void shouldEncryptorsHolderBeInitialized() {
+        assertThat(EncryptorsHolder.isInitialized()).isTrue();
     }
 
     @Test
     public void testGetLongEncryptor() {
         long plain = 12345L;
-        long encrypted = encryptionService.getLongEncryptor().encrypt(plain);
 
-        assertThat(encrypted).isNotEqualTo(plain);
-
-        long decrypted = encryptionService.getLongEncryptor().decrypt(encrypted);
+        String encrypted = EncryptorsHolder.encryptLong(plain);
+        long decrypted = EncryptorsHolder.decryptLong(encrypted);
 
         assertThat(decrypted).isEqualTo(plain);
     }
@@ -36,11 +31,9 @@ public class EncryptionServiceTest {
     @Test
     public void testGetUuidEncryptor() {
         UUID plain = UUID.randomUUID();
-        UUID encrypted = encryptionService.getUuidEncryptor().encrypt(plain);
 
-        assertThat(encrypted).isNotEqualTo(plain);
-
-        UUID decrypted = encryptionService.getUuidEncryptor().decrypt(encrypted);
+        String encrypted = EncryptorsHolder.encryptUuid(plain);
+        UUID decrypted = EncryptorsHolder.decryptUuid(encrypted);
 
         assertThat(decrypted).isEqualTo(plain);
     }

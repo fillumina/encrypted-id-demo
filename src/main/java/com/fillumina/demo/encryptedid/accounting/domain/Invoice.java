@@ -1,5 +1,6 @@
 package com.fillumina.demo.encryptedid.accounting.domain;
 
+import com.fillumina.keyencryptor.jackson.EncryptableLongAsUuid;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,11 +17,13 @@ import java.util.Objects;
 @Entity
 public class Invoice implements Serializable {
     private static final long serialVersionUID = 1L;
+    private static final long UUID_FIED_ID = 1L;
 
     /**
      * Invoices will not be accessed individually from outside so they don't need a public
      * identifier and a much more efficient default Long can be used instead.
      */
+    @EncryptableLongAsUuid(UUID_FIED_ID)
     @Id
     // always prefer sequence because it allows batch operations that are much faster
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

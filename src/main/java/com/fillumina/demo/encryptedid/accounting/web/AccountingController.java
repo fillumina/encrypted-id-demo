@@ -2,6 +2,7 @@ package com.fillumina.demo.encryptedid.accounting.web;
 
 import com.fillumina.demo.encryptedid.accounting.dto.InvoiceDTO;
 import com.fillumina.demo.encryptedid.accounting.service.AccountingService;
+import com.fillumina.keyencryptor.EncryptorsHolder;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -36,7 +37,7 @@ public class AccountingController {
      */
     @GetMapping("/invoices/{customerId}")
     public List<BigDecimal> getExpenses(@PathVariable String customerId) {
-        UUID userId = UUID.fromString(customerId);
+        UUID userId = EncryptorsHolder.decryptUuid(customerId);
         List<BigDecimal> invoices = accountinService.getExpensesOfCustomer(userId);
         return invoices;
     }

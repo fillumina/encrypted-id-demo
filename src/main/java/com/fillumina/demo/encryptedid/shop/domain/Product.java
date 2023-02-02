@@ -1,5 +1,6 @@
 package com.fillumina.demo.encryptedid.shop.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -53,6 +54,7 @@ import java.util.Objects;
 public class Product implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    @JsonIgnore
     @Id
     // always prefer sequence because it allow for batch operations which are much faster
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
