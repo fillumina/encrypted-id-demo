@@ -1,5 +1,6 @@
 package com.fillumina.demo.encryptedid.accounting.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,7 +15,9 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * This entity represents a physical customer.
+ * This entity represents a physical customer. It's the counterpart of the shop
+ * {@link com.fillumina.demo.encryptedid.shop.domain.WebUser} and it
+ * saves its (encrypted) UUID locally for cross references.
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
@@ -25,17 +28,20 @@ import java.util.UUID;
 public class Customer implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    @JsonIgnore
     @Id
-    // always prefer sequence because it allows batch operations that are much faster
+    // always prefer sequence because it allows fast batch operations
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     /**
-     * This UUID refers to the <b>Sequential UUID</b> that identifies a {@link WebUser}.
+     * This UUID refers to the <b>Sequential UUID</b> that identifies a
+     * {@link com.fillumina.demo.encryptedid.shop.domain.WebUser}.
      * Because it is sequential it can be easily guessed by an attacker and should be encrypted
      * before being sent outside the internal environment to avoid having other users being
      * exposed.
      */
+    @JsonIgnore
     private UUID userId;
 
     @OneToMany

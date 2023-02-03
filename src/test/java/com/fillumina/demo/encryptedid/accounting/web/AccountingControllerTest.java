@@ -3,7 +3,9 @@ package com.fillumina.demo.encryptedid.accounting.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fillumina.demo.encryptedid.accounting.domain.Customer;
 import com.fillumina.demo.encryptedid.accounting.domain.Invoice;
+import com.fillumina.demo.encryptedid.accounting.dto.CustomerDTO;
 import com.fillumina.demo.encryptedid.accounting.dto.InvoiceDTO;
+import com.fillumina.demo.encryptedid.accounting.dto.ItemDTO;
 import com.fillumina.demo.encryptedid.accounting.repository.CustomerRepository;
 import com.fillumina.demo.encryptedid.accounting.repository.InvoiceRepository;
 import com.fillumina.keyencryptor.EncryptorsHolder;
@@ -46,16 +48,26 @@ public class AccountingControllerTest {
     @Test
     public void testRegisterNewInvoice() throws Exception {
         final UUID customerId = UUID.randomUUID();
-        final long shoppingCartId = 123L;
-        final BigDecimal price = new BigDecimal("56.78");
+        final String customerLogin = "Lollo";
+        final String shoppingCartId = "XYZ";
+
+        Customer customer = new Customer(customerId);
+        customerRepository.save(customer);
+
+        CustomerDTO customerDTO = new CustomerDTO()
+                .id(customerId)
+                .login(customerLogin);
+
+        ItemDTO item1 = new ItemDTO("SKU1", "10.99", 2);
+        ItemDTO item2 = new ItemDTO("SKU2", "4.33", 3);
 
         InvoiceDTO invoiceDTO = new InvoiceDTO()
-                .customerId(customerId)
-                .shoppingCartId(shoppingCartId)
-                .total(price);
+                .id(shoppingCartId)
+                .webUser(customerDTO)
+                .items(List.of(item1, item2));
 
         mockMvc
-            .perform(post("/invoices")
+            .perform(post("/accounting/invoices")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(OM.writeValueAsBytes(invoiceDTO)))
             .andDo(print())
@@ -63,7 +75,7 @@ public class AccountingControllerTest {
     }
 
     @Test
-    public void testGetExpenses() throws Exception {
+    public void testGetCustomer() throws Exception {
         final UUID customerId = new UUID(0L, 1L);
         final BigDecimal price1 = new BigDecimal("3.45");
         final BigDecimal price2 = new BigDecimal("4.99");
@@ -71,21 +83,40 @@ public class AccountingControllerTest {
         Customer customer = new Customer(customerId);
         customerRepository.save(customer);
 
-        Invoice invoice1 = new Invoice(1L, customer, price1);
-        Invoice invoice2 = new Invoice(2L, customer, price2);
+        Invoice invoice1 = new Invoice("XYZ", customer, price1);
+        Invoice invoice2 = new Invoice("ABC", customer, price2);
 
         invoiceRepository.save(invoice1);
         invoiceRepository.save(invoice2);
 
-        List<BigDecimal> result = List.of(price1, price2);
-
         String encryptedCustomerId = EncryptorsHolder.encryptUuid(customerId);
 
         mockMvc
-            .perform(get("/invoices/" + encryptedCustomerId))
+            .perform(get("/accounting/customers/" + encryptedCustomerId))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(content().json(OM.writeValueAsString(result)));
+            .andExpect(content().json(OM.writeValueAsString(customer)));
+    }
+
+    @Test
+    public void testGetInvoice() throws Exception {
+        final UUID customerId = new UUID(0L, 1L);
+        final BigDecimal price = new BigDecimal("3.45");
+
+        Customer customer = new Customer(customerId);
+        customerRepository.save(customer);
+
+        Invoice invoice = new Invoice("XYZ", customer, price);
+        invoiceRepository.save(invoice);
+
+        String encryptedInvoiceId =
+                EncryptorsHolder.encryptLongAsUuid(Invoice.ENCRYPTED_FIELD_ID ,invoice.getId());
+
+        mockMvc
+            .perform(get("/accounting/invoices/" + encryptedInvoiceId))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().json(OM.writeValueAsString(invoice)));
     }
 
 }

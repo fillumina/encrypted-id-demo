@@ -1,10 +1,10 @@
 package com.fillumina.demo.encryptedid.accounting.web;
 
+import com.fillumina.demo.encryptedid.accounting.domain.Customer;
+import com.fillumina.demo.encryptedid.accounting.domain.Invoice;
 import com.fillumina.demo.encryptedid.accounting.dto.InvoiceDTO;
 import com.fillumina.demo.encryptedid.accounting.service.AccountingService;
 import com.fillumina.keyencryptor.EncryptorsHolder;
-import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,15 +19,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AccountingController {
 
-    private final AccountingService accountinService;
+    private final AccountingService accountingService;
 
     public AccountingController(AccountingService accountinService) {
-        this.accountinService = accountinService;
+        this.accountingService = accountinService;
     }
 
-    @PostMapping("/invoices")
+    @PostMapping("/accounting/invoices")
     public String registerNewInvoice(@RequestBody InvoiceDTO invoice) {
-        long id = accountinService.registerNewInvoice(invoice);
+        long id = accountingService.registerNewInvoice(invoice);
         return "" + id;
     }
 
@@ -35,10 +35,17 @@ public class AccountingController {
      * Note that even though the {@param customerId} added in the URL it will be
      * encrypted in a TLS (https) connection.
      */
-    @GetMapping("/invoices/{customerId}")
-    public List<BigDecimal> getExpenses(@PathVariable String customerId) {
+    @GetMapping("/accounting/customers/{customerId}")
+    public Customer getCustomer(@PathVariable String customerId) {
         UUID userId = EncryptorsHolder.decryptUuid(customerId);
-        List<BigDecimal> invoices = accountinService.getExpensesOfCustomer(userId);
-        return invoices;
+        Customer customer = accountingService.getCustomer(userId);
+        return customer;
+    }
+
+    @GetMapping("/accounting/invoices/{invoiceId}")
+    public Invoice getInvoice(@PathVariable String invoiceId) {
+        Long id = EncryptorsHolder.decryptLongAsUuid(invoiceId);
+        Invoice invoice = accountingService.getInvoice(id);
+        return invoice;
     }
 }

@@ -1,5 +1,6 @@
 package com.fillumina.demo.encryptedid.accounting.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fillumina.keyencryptor.jackson.EncryptableLongAsUuid;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,29 +18,34 @@ import java.util.Objects;
 @Entity
 public class Invoice implements Serializable {
     private static final long serialVersionUID = 1L;
-    private static final long UUID_FIED_ID = 1L;
+
+    public static final long ENCRYPTED_FIELD_ID = 567L;
 
     /**
      * Invoices will not be accessed individually from outside so they don't need a public
      * identifier and a much more efficient default Long can be used instead.
      */
-    @EncryptableLongAsUuid(UUID_FIED_ID)
+    @EncryptableLongAsUuid(ENCRYPTED_FIELD_ID)
     @Id
-    // always prefer sequence because it allows batch operations that are much faster
+    // always prefer sequence because it allows fast batch operations
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    private Long shoppingCartId;
+    private String shoppingCartId;
 
     private BigDecimal total;
 
+    @JsonIgnoreProperties(
+        value = { "invoices" },
+        allowSetters = true
+    )
     @ManyToOne
     private Customer customer;
 
     protected Invoice() {
     }
 
-    public Invoice(Long shoppingCartId, Customer customer, BigDecimal total) {
+    public Invoice(String shoppingCartId, Customer customer, BigDecimal total) {
         this.shoppingCartId = shoppingCartId;
         this.total = total;
         this.customer = customer;
@@ -50,7 +56,7 @@ public class Invoice implements Serializable {
         return id;
     }
 
-    public Long getShoppingCartId() {
+    public String getShoppingCartId() {
         return shoppingCartId;
     }
 

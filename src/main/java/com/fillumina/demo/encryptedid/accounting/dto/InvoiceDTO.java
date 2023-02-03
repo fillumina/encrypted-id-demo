@@ -1,71 +1,60 @@
 package com.fillumina.demo.encryptedid.accounting.dto;
 
-import com.fillumina.keyencryptor.jackson.Encryptable;
-import java.math.BigDecimal;
-import java.util.UUID;
+import java.util.List;
 
 /**
+ * Mimics the content exported by shop API with the call registerNewInvoice(ShoppingCart)
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
 public class InvoiceDTO {
 
-    @Encryptable
-    private UUID customerId;
+    /**
+     * Contains the encrypted long of
+     * {@link com.fillumina.demo.encryptedid.shop.domain.ShoppingCart#id} as string.
+     */
+    private String id;
 
-    @Encryptable
-    private Long shoppingCartId;
+    private CustomerDTO webUser;
+    private List<ItemDTO> items;
 
-    BigDecimal total;
-
-    public InvoiceDTO() {
-    }
-
-    public InvoiceDTO customerId(final UUID value) {
-        this.customerId = value;
+    public InvoiceDTO id(final String value) {
+        this.id = value;
         return this;
     }
 
-    public InvoiceDTO shoppingCartId(final Long value) {
-        this.shoppingCartId = value;
+    public InvoiceDTO webUser(final CustomerDTO value) {
+        this.webUser = value;
         return this;
     }
 
-    public InvoiceDTO total(final BigDecimal value) {
-        this.total = value;
+    public InvoiceDTO items(final List<ItemDTO> value) {
+        this.items = value;
         return this;
     }
 
-    public UUID getCustomerId() {
-        return customerId;
+    public String getId() {
+        return id;
     }
 
-    public void setCustomerId(UUID customerId) {
-        this.customerId = customerId;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public Long getShoppingCartId() {
-        return shoppingCartId;
+    public CustomerDTO getWebUser() {
+        return webUser;
     }
 
-    public void setShoppingCartId(Long shoppingCartId) {
-        this.shoppingCartId = shoppingCartId;
+    public void setWebUser(CustomerDTO webUser) {
+        this.webUser = webUser;
     }
 
-    public BigDecimal getTotal() {
-        return total;
+    public List<ItemDTO> getItems() {
+        return items;
     }
 
-    public void setTotal(BigDecimal total) {
-        this.total = total;
-    }
-
-    @Override
-    public String toString() {
-        return "InvoiceDTO{" +
-                "customerId=" + customerId +
-                ", shoppingCartId=" + shoppingCartId +
-                ", total=" + total + '}';
+    public void setItems(List<ItemDTO> items) {
+        this.items = items;
     }
 
 }

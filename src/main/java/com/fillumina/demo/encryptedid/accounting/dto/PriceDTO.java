@@ -1,24 +1,20 @@
-package com.fillumina.demo.encryptedid.shop.dto;
+package com.fillumina.demo.encryptedid.accounting.dto;
 
-import com.fillumina.demo.encryptedid.shop.domain.Product;
 import java.math.BigDecimal;
 
 /**
+ * Mimic {@link com.fillumina.demo.encryptedid.shop.domain.Product}
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-public class ProductDTO {
+public class PriceDTO {
     private String sku;
     private BigDecimal price;
 
-    public ProductDTO() {
+    public PriceDTO() {
     }
 
-    public ProductDTO(Product product) {
-        this(product.getSku(), product.getPrice());
-    }
-
-    public ProductDTO(String sku, BigDecimal price) {
+    public PriceDTO(String sku, BigDecimal price) {
         this.sku = sku;
         this.price = price;
     }

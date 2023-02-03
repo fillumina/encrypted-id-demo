@@ -1,5 +1,6 @@
 package com.fillumina.demo.encryptedid.shop.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fillumina.keyencryptor.jackson.Encryptable;
 import com.github.f4b6a3.tsid.TsidFactory;
 import jakarta.persistence.CascadeType;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @Entity
 public class ShoppingCart implements Serializable {
     private static final long serialVersionUID = 1L;
+    public static final long ENCRYPTABLE_FIELD_ID = 123L;
 
     private final static TsidFactory TSID_FACTORY = TsidFactory.newInstance1024(0);
 
@@ -38,13 +40,19 @@ public class ShoppingCart implements Serializable {
      */
     @Id
     @Column(name = "id", updatable = false, nullable = false)
-    @Encryptable
+    @Encryptable(ENCRYPTABLE_FIELD_ID)
     private Long id;
+
+    private boolean sold = false;
 
     /**
      * This foreign key (FK) will use the WebUser UUID primary key (PK) which is 128 bits long so
      * less performant (space wise but also somewhat in speed) than a standard 64 bit Long ID.
      */
+    @JsonIgnoreProperties(
+        value = { "shoppingCarts" },
+        allowSetters = true
+    )
     @ManyToOne
     private WebUser webUser;
 
@@ -87,6 +95,14 @@ public class ShoppingCart implements Serializable {
 
     public WebUser getWebUser() {
         return webUser;
+    }
+
+    public boolean isSold() {
+        return sold;
+    }
+
+    public void setSold(boolean sold) {
+        this.sold = sold;
     }
 
     public List<Item> getItems() {

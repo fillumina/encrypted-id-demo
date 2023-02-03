@@ -1,10 +1,7 @@
 package com.fillumina.demo.encryptedid.shop.domain;
 
-import com.fasterxml.uuid.EthernetAddress;
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.TimeBasedGenerator;
+import static com.fillumina.demo.encryptedid.shop.UuidUtil.UUID_GENERATOR;
 import com.fillumina.keyencryptor.jackson.Encryptable;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -30,9 +27,6 @@ import java.util.UUID;
 @Entity
 public class WebUser implements Serializable {
     private static final long serialVersionUID = 1L;
-
-    private static TimeBasedGenerator UUID_GENERATOR =
-            Generators.timeBasedGenerator(EthernetAddress.fromInterface());
 
     /**
      * Using an UUID as primary key means that this entity can be uniquely addressed by whatever
@@ -87,7 +81,7 @@ public class WebUser implements Serializable {
      * by a FK in the @ManyToOne side). Also, because the {@link ShoppingCart#hashCode()} value is the
      * same for all {@link Addresse}s using {@link java.util.Set} would be very inefficient.
      */
-    @OneToMany(mappedBy = "webUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "webUser", fetch = FetchType.LAZY)
     private Set<ShoppingCart> shoppingCarts = new HashSet<>();
 
     // called by Hibernate and Jackson libraries

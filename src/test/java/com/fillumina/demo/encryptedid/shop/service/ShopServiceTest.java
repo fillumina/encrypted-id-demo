@@ -1,11 +1,10 @@
 package com.fillumina.demo.encryptedid.shop.service;
 
-import com.fillumina.demo.encryptedid.accounting.dto.InvoiceDTO;
+import com.fillumina.demo.encryptedid.shop.domain.Item;
 import com.fillumina.demo.encryptedid.shop.domain.Product;
 import com.fillumina.demo.encryptedid.shop.domain.ShoppingCart;
 import com.fillumina.demo.encryptedid.shop.domain.WebUser;
-import com.fillumina.demo.encryptedid.shop.dto.ItemDTO;
-import com.fillumina.demo.encryptedid.shop.dto.ShoppingCartDTO;
+import com.fillumina.demo.encryptedid.shop.repository.ItemRepository;
 import com.fillumina.demo.encryptedid.shop.repository.ProductRepository;
 import com.fillumina.demo.encryptedid.shop.repository.ShoppingCartRepository;
 import com.fillumina.demo.encryptedid.shop.repository.WebUserRepository;
@@ -17,18 +16,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 /**
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
-@SpringBootTest
+@DataJpaTest
 @Transactional
 public class ShopServiceTest {
     private static final String LOGIN = "pippo";
     private static final BigDecimal PRICE = new BigDecimal("33.4");
     private static final String SKU = "TSHIRT";
+
+    @Autowired
+    private TestEntityManager em;
 
     @Autowired
     private WebUserRepository webUserRepository;
@@ -39,6 +42,9 @@ public class ShopServiceTest {
     @Autowired
     private ShoppingCartRepository shoppingCartRepository;
 
+    @Autowired
+    private ItemRepository itemRepository;
+
     private AccountingClientMock accountingClientMock;
     private ShopService shopService;
 
@@ -46,7 +52,7 @@ public class ShopServiceTest {
     public void initMock() {
         this.accountingClientMock = new AccountingClientMock();
         this.shopService = new ShopService(webUserRepository, productRepository,
-                shoppingCartRepository, accountingClientMock);
+                shoppingCartRepository, itemRepository, accountingClientMock);
     }
 
     @Test
@@ -86,7 +92,48 @@ public class ShopServiceTest {
     }
 
     @Test
-    public void testBuyShoppingCart() {
+    public void testGetAllProducts() {
+        Product product1 = new Product("SKU1", new BigDecimal(1));
+        productRepository.save(product1);
+
+        Product product2 = new Product("SKU2", new BigDecimal(2));
+        productRepository.save(product2);
+
+        List<Product> list = shopService.getAllProducts();
+
+        assertThat(list)
+                .hasSize(2)
+                .containsExactly(product1, product2);
+    }
+
+    @Test
+    public void testAddItemToShoppingCart() {
+        UUID userId = shopService.createWebUser(LOGIN);
+        Long productId = productRepository.save(new Product(SKU, new BigDecimal(1))).getId();
+
+        shopService.addItemToShoppingCart(userId, SKU, 2);
+
+        Product refreshedProduct = productRepository.getReferenceById(productId);
+        Item item = refreshedProduct.getItems().get(0);
+
+        assertThat(item.getShoppingCart().getWebUser().getId()).isEqualTo(userId);
+        assertThat(item.getProduct().getSku()).isEqualTo(SKU);
+        assertThat(item.getQuantity()).isEqualTo(2);
+    }
+
+    @Test
+    public void testGetShoppingCart() {
+        WebUser webUser = webUserRepository.save(new WebUser(LOGIN));
+        ShoppingCart shoppingCart = shoppingCartRepository.save(new ShoppingCart(webUser));
+        UUID userId = webUser.getId();
+
+        ShoppingCart result = shopService.getShoppingCart(userId);
+
+        assertThat(result).isEqualTo(shoppingCart);
+    }
+
+    @Test
+    public void testPurchaseShoppingCart() {
         final String sku1 = "TSHIRT";
         final String sku2 = "PANTS";
         final BigDecimal price1 = new BigDecimal("3.45");
@@ -94,42 +141,25 @@ public class ShopServiceTest {
         final int qty1 = 1;
         final int qty2 = 3;
 
-        WebUser user = new WebUser(LOGIN);
-        webUserRepository.save(user);
+        WebUser user = webUserRepository.save(new WebUser(LOGIN));
 
-        Product p1 = new Product(sku1, price1);
-        Product p2 = new Product(sku2, price2);
-        productRepository.save(p1);
-        productRepository.save(p2);
+        Product product1 = productRepository.save(new Product(sku1, price1));
+        Product product2 = productRepository.save(new Product(sku2, price2));
 
+        ShoppingCart shoppingCart = shoppingCartRepository.save(new ShoppingCart(user));
 
-        ItemDTO item1 = new ItemDTO(sku1, qty1);
-        ItemDTO item2 = new ItemDTO(sku2, qty2);
+        Item item1 = itemRepository.save(new Item(shoppingCart, product1, qty1));
+        Item item2 = itemRepository.save(new Item(shoppingCart, product2, qty2));
 
-        ShoppingCartDTO shoppingCartDTO = new ShoppingCartDTO()
-                .userId(user.getId())
-                .items(List.of(item1, item2));
+        assertThat(shoppingCart.isSold()).isFalse();
 
         // call the accounting system and send the shopping cart
-        shopService.buyShoppingCart(shoppingCartDTO);
+        long purchaseId = shopService.purchaseShoppingCart(shoppingCart.getId());
 
-        // this is the invoice created to be sent to accounting
-        InvoiceDTO invoice = accountingClientMock.getInvoice();
+        assertThat(shoppingCart.isSold()).isTrue();
+        assertThat(purchaseId).isEqualTo(accountingClientMock.getResponse());
+        assertThat(shoppingCart).isEqualTo(accountingClientMock.getInvoice());
 
-        assertThat(invoice.getCustomerId()).isEqualTo(user.getId());
-        assertThat(invoice.getTotal()).isEqualTo(
-                (price1.multiply(BigDecimal.valueOf(qty1))).add(
-                        price2.multiply(BigDecimal.valueOf(qty2))));
-        assertThat(invoice.getShoppingCartId()).isNotNull();
-
-        ShoppingCart shoppingCart = shoppingCartRepository.findById(invoice.getShoppingCartId())
-                .orElseThrow();
-
-        assertThat(shoppingCart.getWebUser()).isEqualTo(user);
-        assertThat(shoppingCart.getItems())
-                .hasSize(2)
-                .anyMatch(i -> sku1.equals(i.getProduct().getSku()) && qty1 == i.getQuantity())
-                .anyMatch(i -> sku2.equals(i.getProduct().getSku()) && qty2 == i.getQuantity());
     }
 
 }

@@ -25,6 +25,7 @@ public class Item implements Serializable {
     /**
      * Item doesn't need to be addressed individually so it's using a default long ID.
      */
+    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
@@ -34,6 +35,7 @@ public class Item implements Serializable {
     @ManyToOne
     private Product product;
 
+    @JsonIgnore
     @ManyToOne
     private ShoppingCart shoppingCart;
 

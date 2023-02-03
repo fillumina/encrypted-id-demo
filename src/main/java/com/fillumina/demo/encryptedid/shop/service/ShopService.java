@@ -1,21 +1,22 @@
 package com.fillumina.demo.encryptedid.shop.service;
 
-import com.fillumina.demo.encryptedid.accounting.dto.InvoiceDTO;
 import com.fillumina.demo.encryptedid.shop.client.AccountingClient;
 import com.fillumina.demo.encryptedid.shop.domain.Item;
 import com.fillumina.demo.encryptedid.shop.domain.Product;
 import com.fillumina.demo.encryptedid.shop.domain.ShoppingCart;
 import com.fillumina.demo.encryptedid.shop.domain.WebUser;
-import com.fillumina.demo.encryptedid.shop.dto.ItemDTO;
-import com.fillumina.demo.encryptedid.shop.dto.ShoppingCartDTO;
+import com.fillumina.demo.encryptedid.shop.repository.ItemRepository;
 import com.fillumina.demo.encryptedid.shop.repository.ProductRepository;
 import com.fillumina.demo.encryptedid.shop.repository.ShoppingCartRepository;
 import com.fillumina.demo.encryptedid.shop.repository.WebUserRepository;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 /**
+ * The service layer doesn't have to care about hot the actual identifiers are transmitted
+ * outside so it expects them as they are defined.
  *
  * @author Francesco Illuminati <fillumina@gmail.com>
  */
@@ -25,13 +26,16 @@ public class ShopService {
     private final WebUserRepository webUserRepository;
     private final ProductRepository productRepository;
     private final ShoppingCartRepository shoppingCartRepository;
+    private final ItemRepository itemRepository;
     private final AccountingClient accountingClient;
 
     public ShopService(WebUserRepository webUserRepository, ProductRepository productRepository,
-            ShoppingCartRepository shoppingCartRepository, AccountingClient accountingClient) {
+            ShoppingCartRepository shoppingCartRepository, ItemRepository itemRepository,
+            AccountingClient accountingClient) {
         this.webUserRepository = webUserRepository;
         this.productRepository = productRepository;
         this.shoppingCartRepository = shoppingCartRepository;
+        this.itemRepository = itemRepository;
         this.accountingClient = accountingClient;
     }
 
@@ -56,22 +60,38 @@ public class ShopService {
         return productRepository.findBySku(sku).orElseThrow();
     }
 
-    public void buyShoppingCart(ShoppingCartDTO shoppingCartDTO) {
-        WebUser user = getWebUser(shoppingCartDTO.getUserId());
-        ShoppingCart shoppingCart = new ShoppingCart(user);
-        if (shoppingCartDTO.getItems() != null) {
-            for (ItemDTO itemDTO: shoppingCartDTO.getItems()) {
-                Product product = getProduct(itemDTO.getSku());
-                new Item(shoppingCart, product, itemDTO.getQuantity());
-            }
-        }
-        shoppingCartRepository.save(shoppingCart);
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
 
-        InvoiceDTO invoice = new InvoiceDTO()
-                .customerId(user.getId())
-                .shoppingCartId(shoppingCart.getId())
-                .total(shoppingCart.getTotalCost());
-        accountingClient.registerNewInvoice(invoice);
+    public void addItemToShoppingCart(UUID userId, String sku, int quantity) {
+        Product product = productRepository.findBySku(sku).orElseThrow();
+        ShoppingCart shoppingCart = getOrCreateShoppingCart(userId);
+        Item item = new Item(shoppingCart, product, quantity);
+        itemRepository.save(item);
+    }
+
+    private ShoppingCart getOrCreateShoppingCart(UUID userId) {
+        ShoppingCart shoppingCart = shoppingCartRepository.findLastNotPurchasedByUser(userId)
+                .orElseGet(() -> {
+                    WebUser user = webUserRepository.getReferenceById(userId);
+                    return shoppingCartRepository.save(new ShoppingCart(user));
+                });
+        return shoppingCart;
+    }
+
+    public ShoppingCart getShoppingCart(UUID userId) {
+        return shoppingCartRepository.findLastNotPurchasedByUser(userId).orElseThrow();
+    }
+
+    public long purchaseShoppingCart(Long shoppingCartId) {
+        ShoppingCart shoppingCart = shoppingCartRepository.getReferenceById(shoppingCartId);
+        if (shoppingCart.getItems() == null || shoppingCart.getItems().isEmpty()) {
+            throw new IllegalStateException("shopping cart is empty");
+        }
+        shoppingCart.setSold(true);
+        long purchaseId = accountingClient.registerNewInvoice(shoppingCart);
+        return purchaseId;
     }
 
 }

@@ -28,14 +28,14 @@ public class InvoiceRepositoryTest {
     @Test
     public void shouldNotAddIdBeforePersist() {
         Customer customer = new Customer(UUID.randomUUID());
-        Invoice invoice = new Invoice(123L, customer, BigDecimal.TEN);
+        Invoice invoice = new Invoice("XYZ", customer, BigDecimal.TEN);
         assertThat(invoice.getId()).isNull();
     }
 
     @Test
     public void shouldAddIdAfterPersist() {
         Customer customer = new Customer(UUID.randomUUID());
-        Invoice invoice = new Invoice(123L, customer, BigDecimal.TEN);
+        Invoice invoice = new Invoice("XYZ", customer, BigDecimal.TEN);
 
         em.persist(customer);
         em.persist(invoice);
@@ -46,7 +46,7 @@ public class InvoiceRepositoryTest {
     @Test
     public void shouldFindById() {
         Customer customer = new Customer(UUID.randomUUID());
-        Invoice invoice = new Invoice(123L, customer, BigDecimal.TEN);
+        Invoice invoice = new Invoice("XYZ", customer, BigDecimal.TEN);
 
         em.persist(customer);
         em.persist(invoice);
