@@ -10,7 +10,7 @@ import com.fillumina.demo.encryptedid.shop.repository.ItemRepository;
 import com.fillumina.demo.encryptedid.shop.repository.ProductRepository;
 import com.fillumina.demo.encryptedid.shop.repository.ShoppingCartRepository;
 import com.fillumina.demo.encryptedid.shop.repository.WebUserRepository;
-import com.fillumina.keyencryptor.EncryptorsHolder;
+import com.fillumina.idencryptor.EncryptorsHolder;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;

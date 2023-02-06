@@ -1,6 +1,6 @@
 package com.fillumina.demo.encryptedid.service;
 
-import com.fillumina.keyencryptor.EncryptorsHolder;
+import com.fillumina.idencryptor.EncryptorsHolder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

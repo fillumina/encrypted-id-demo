@@ -4,7 +4,7 @@ import com.fillumina.demo.encryptedid.accounting.domain.Customer;
 import com.fillumina.demo.encryptedid.accounting.domain.Invoice;
 import com.fillumina.demo.encryptedid.accounting.dto.InvoiceDTO;
 import com.fillumina.demo.encryptedid.accounting.service.AccountingService;
-import com.fillumina.keyencryptor.EncryptorsHolder;
+import com.fillumina.idencryptor.EncryptorsHolder;
 import java.util.UUID;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

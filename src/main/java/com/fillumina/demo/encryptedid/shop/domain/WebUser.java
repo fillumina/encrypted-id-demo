@@ -1,7 +1,8 @@
 package com.fillumina.demo.encryptedid.shop.domain;
 
 import static com.fillumina.demo.encryptedid.shop.UuidUtil.UUID_GENERATOR;
-import com.fillumina.keyencryptor.jackson.Encryptable;
+import com.fillumina.idencryptor.jackson.Encryptable;
+import com.fillumina.idencryptor.jackson.ExportType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -71,7 +72,7 @@ public class WebUser implements Serializable {
      */
     @Id
     @Column(name = "id", updatable = false, nullable = false)
-    @Encryptable
+    @Encryptable(type = ExportType.Uuid)
     private UUID id;
 
     private String login;

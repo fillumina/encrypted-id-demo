@@ -8,7 +8,7 @@ import com.fillumina.demo.encryptedid.accounting.dto.InvoiceDTO;
 import com.fillumina.demo.encryptedid.accounting.dto.ItemDTO;
 import com.fillumina.demo.encryptedid.accounting.repository.CustomerRepository;
 import com.fillumina.demo.encryptedid.accounting.repository.InvoiceRepository;
-import com.fillumina.keyencryptor.EncryptorsHolder;
+import com.fillumina.idencryptor.EncryptorsHolder;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;

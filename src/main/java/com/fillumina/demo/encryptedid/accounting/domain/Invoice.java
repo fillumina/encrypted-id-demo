@@ -1,7 +1,8 @@
 package com.fillumina.demo.encryptedid.accounting.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fillumina.keyencryptor.jackson.EncryptableLongAsUuid;
+import com.fillumina.idencryptor.jackson.Encryptable;
+import com.fillumina.idencryptor.jackson.ExportType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,7 +26,7 @@ public class Invoice implements Serializable {
      * Invoices will not be accessed individually from outside so they don't need a public
      * identifier and a much more efficient default Long can be used instead.
      */
-    @EncryptableLongAsUuid(ENCRYPTED_FIELD_ID)
+    @Encryptable(type = ExportType.LongAsUuid, nodeId = ENCRYPTED_FIELD_ID)
     @Id
     // always prefer sequence because it allows fast batch operations
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

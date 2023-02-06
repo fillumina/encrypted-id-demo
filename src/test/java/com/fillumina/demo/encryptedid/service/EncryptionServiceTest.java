@@ -1,6 +1,6 @@
 package com.fillumina.demo.encryptedid.service;
 
-import com.fillumina.keyencryptor.EncryptorsHolder;
+import com.fillumina.idencryptor.EncryptorsHolder;
 import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;

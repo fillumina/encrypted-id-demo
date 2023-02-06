@@ -1,7 +1,8 @@
 package com.fillumina.demo.encryptedid.shop.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fillumina.keyencryptor.jackson.Encryptable;
+import com.fillumina.idencryptor.jackson.Encryptable;
+import com.fillumina.idencryptor.jackson.ExportType;
 import com.github.f4b6a3.tsid.TsidFactory;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -40,7 +41,7 @@ public class ShoppingCart implements Serializable {
      */
     @Id
     @Column(name = "id", updatable = false, nullable = false)
-    @Encryptable(ENCRYPTABLE_FIELD_ID)
+    @Encryptable(type = ExportType.String, nodeId = ENCRYPTABLE_FIELD_ID)
     private Long id;
 
     private boolean sold = false;

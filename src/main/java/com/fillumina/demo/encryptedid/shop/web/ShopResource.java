@@ -4,7 +4,7 @@ import com.fillumina.demo.encryptedid.shop.domain.Product;
 import com.fillumina.demo.encryptedid.shop.domain.ShoppingCart;
 import com.fillumina.demo.encryptedid.shop.domain.WebUser;
 import com.fillumina.demo.encryptedid.shop.service.ShopService;
-import com.fillumina.keyencryptor.EncryptorsHolder;
+import com.fillumina.idencryptor.EncryptorsHolder;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.web.bind.annotation.GetMapping;
